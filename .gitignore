@@ -12,6 +12,7 @@ project.lock.json
 *.user
 *.userosscache
 *.sln.docstates
+appsettings.Development.json
 
 # Build results
 [Dd]ebug/
