@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -23,13 +24,17 @@ namespace Aeveco.Email.Service.Models.Email
             } 
         }
 
-        public override string Subject { get {
+        public override string Subject { 
+            get {
+
                 return "Happy Email Message";
             } 
         }
 
-        public override string Message { get; }
-
-        public override string HtmlMessage { get; }
+        public string JokeLink {
+            get {
+                return "https://insultware.com/happy";       
+            }
+        }
     }
 }

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Antlr4.StringTemplate;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -35,8 +37,7 @@ namespace Aeveco.Email.Service.Models
             {
                 if (string.IsNullOrWhiteSpace(templateFolder))
                 {
-
-                    templateFolder = environment.ContentRootPath + "";
+                    templateFolder = Path.Combine(environment.ContentRootPath, "EmailTemplates");
                 }
                 return templateFolder;
             }
@@ -54,10 +55,28 @@ namespace Aeveco.Email.Service.Models
 
         public abstract string Subject { get; }
 
-        public abstract string Message { get; }
+        public string Message { get; set; }
 
-        public abstract string HtmlMessage { get; }
+        public string HtmlMessage {
+            get {
 
+                return getEmailHTML();
+            }
+        }
+
+        private string getEmailHTML()
+        {
+            Template layout = null;
+            TemplateGroup group = new TemplateRawGroupDirectory(TemplateFolder, '$', '$');
+
+            layout = group.GetInstanceOf(TemplateName);
+
+            layout.Add("email", this);
+
+            //layout.Add("style", this.Hub.GetStyleSheet());
+
+            return layout.Render();
+        }
 
         public Task SendEmailAsync(List<IEmailContact> recipients, IEmailContact sender, string subject, string message)
         {
@@ -74,7 +93,7 @@ namespace Aeveco.Email.Service.Models
                 From = new EmailAddress(sender.EmailAddress, sender.DisplayName),
                 Subject = subject,
                 PlainTextContent = message,
-                HtmlContent = message
+                HtmlContent = HtmlMessage
             };
 
             foreach (var recipient in recipients)
